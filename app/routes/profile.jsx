@@ -8,6 +8,7 @@ import {
   useTransition,
 } from '@remix-run/react';
 import { json } from '@remix-run/node';
+import { kontenbase } from '~/lib/kontenbase.server';
 import { kontenbaseApiUrl } from '~/lib/kontenbase.server';
 import { getToken } from '~/utils/cookie';
 
@@ -46,7 +47,7 @@ export const action = async ({ request }) => {
         message: 'profile updated!',
       });
     }
-  } else {
+  } else if (method === 'update profile') {
     const firstName = formData.get('firstname');
     const lastName = formData.get('lastname');
     const phoneNumber = formData.get('phonenumber');
@@ -95,6 +96,15 @@ export const action = async ({ request }) => {
       });
     }
   }
+
+  await kontenbase.auth.logout();
+  return redirect('/', {
+    headers: {
+      'Set-Cookie': await kontenbaseToken.serialize('', {
+        maxAge: 0,
+      }),
+    },
+  });
 };
 
 export const loader = async ({ request }) => {
@@ -143,7 +153,9 @@ const EditProfile = () => {
         <Link className="button" to={`/${user?.username}`}>
           View Profile
         </Link>
-        <button>Logout</button>
+        <Form method="post">
+          <button>Logout</button>
+        </Form>
       </div>
       <div className="profile-wrapper">
         <div className="profile-header">
@@ -178,7 +190,7 @@ const EditProfile = () => {
         <div className="card">
           <Form method="post">
             <input type="hidden" name="profileid" value={profile?._id} />
-            <input type="hidden" name="operation" value="update profile" />
+            <input type="hidden" name="_method" value="update profile" />
             <div className="card-field">
               <label>First Name</label>
               <input
