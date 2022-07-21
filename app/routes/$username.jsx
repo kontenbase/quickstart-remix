@@ -1,7 +1,19 @@
-import { json } from '@remix-run/node';
-import { Link, useLoaderData, useParams } from '@remix-run/react';
+import { Form, Link, useLoaderData } from '@remix-run/react';
+import { json, redirect } from '@remix-run/node';
+import { kontenbase } from '~/lib/kontenbase.server';
 import { kontenbaseApiUrl } from '~/lib/kontenbase.server';
-import { getToken } from '~/utils/cookie';
+import { getToken, kontenbaseToken } from '~/utils/cookie';
+
+export const action = async () => {
+  await kontenbase.auth.logout();
+  return redirect('/', {
+    headers: {
+      'Set-Cookie': await kontenbaseToken.serialize('', {
+        maxAge: 0,
+      }),
+    },
+  });
+};
 
 export const loader = async ({ params, request }) => {
   const { username } = params;
@@ -52,7 +64,9 @@ const Profile = () => {
               <Link className="button" to="/profile">
                 Edit Profile
               </Link>
-              <button>Logout</button>
+              <Form method="post">
+                <button>Logout</button>
+              </Form>
             </div>
           )}
           <div className="profile-wrapper">
