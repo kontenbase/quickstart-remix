@@ -43,7 +43,7 @@ const Register = () => {
   return (
     <Form method="post">
       <div className="form-group">
-        <input type="hidden" name="_method" value="register" />
+        <input type="hidden" name="operation" value="register" />
         <label>First Name</label>
         <input name="firstname" required />
       </div>

@@ -29,7 +29,7 @@ export const processLogin = async (formData) => {
 const Login = () => {
   return (
     <Form method="post">
-      <input type="hidden" name="_method" value="login" />
+      <input type="hidden" name="operation" value="login" />
       <div className="form-group">
         <label>Username</label>
         <input name="username" required />

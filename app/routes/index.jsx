@@ -5,9 +5,9 @@ import Register, { processRegister } from '../components/Register';
 
 export const action = async ({ request }) => {
   const formData = await request.formData();
-  const method = formData.get('_method');
+  const operation = formData.get('operation');
 
-  if (method === 'login') {
+  if (operation === 'login') {
     return processLogin(formData);
   } else {
     return processRegister(formData);
