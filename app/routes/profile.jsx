@@ -7,25 +7,24 @@ import {
   useSubmit,
   useTransition,
 } from '@remix-run/react';
-import { json } from '@remix-run/node';
-import { kontenbase } from '~/lib/kontenbase.server';
+import { json, redirect } from '@remix-run/node';
 import { kontenbaseApiUrl } from '~/lib/kontenbase.server';
-import { getToken } from '~/utils/cookie';
+import { getToken, kontenbaseToken } from '~/utils/cookie';
 
 export const action = async ({ request }) => {
   const formData = await request.formData();
   const profileID = formData.get('profileid');
   const token = await getToken(request);
-  const method = formData.get('_method');
+  const operation = formData.get('operation');
   const headers = {
     Authorization: `Bearer ${token}`,
   };
 
-  if (method === 'upload image') {
+  if (operation === 'upload image') {
     const responseUpload = await fetch(`${kontenbaseApiUrl}/storage/upload`, {
-      body: formData,
       method: 'POST',
       headers,
+      body: formData,
     });
 
     const image = await responseUpload.json();
@@ -47,7 +46,9 @@ export const action = async ({ request }) => {
         message: 'profile updated!',
       });
     }
-  } else if (method === 'update profile') {
+  }
+
+  if (operation === 'update profile') {
     const firstName = formData.get('firstname');
     const lastName = formData.get('lastname');
     const phoneNumber = formData.get('phonenumber');
@@ -58,12 +59,12 @@ export const action = async ({ request }) => {
 
     const userResponse = await fetch(`${kontenbaseApiUrl}/auth/user`, {
       method: 'PATCH',
+      headers,
       body: JSON.stringify({
         firstName,
         lastName,
         phoneNumber,
       }),
-      headers,
     });
 
     const profileData = {
@@ -91,24 +92,30 @@ export const action = async ({ request }) => {
       });
     } else {
       return json({
-        method: 'update profile',
+        operation,
         message: 'profile updated!',
       });
     }
   }
 
-  await kontenbase.auth.logout();
-  return redirect('/', {
-    headers: {
-      'Set-Cookie': await kontenbaseToken.serialize('', {
-        maxAge: 0,
-      }),
-    },
-  });
+  if (operation === 'logout') {
+    return redirect('/', {
+      headers: {
+        'Set-Cookie': await kontenbaseToken.serialize('', {
+          maxAge: 0,
+        }),
+      },
+    });
+  }
 };
 
 export const loader = async ({ request }) => {
   const token = await getToken(request);
+
+  if (!token) {
+    return redirect('/');
+  }
+
   const response = await fetch(`${kontenbaseApiUrl}/auth/user?$lookup=*`, {
     headers: {
       Authorization: `Bearer ${token}`,
@@ -126,19 +133,19 @@ const EditProfile = () => {
   const submit = useSubmit();
   const loaderData = useLoaderData();
   const actionData = useActionData();
+  const operation = transition.submission?.formData.get('operation');
   const [user, setUser] = React.useState('');
   const [profile, setProfile] = React.useState('');
-  const method = transition.submission?.formData.get('_method');
 
   React.useEffect(() => {
     if (loaderData?.user) {
       setUser(loaderData.user);
-      setProfile(loaderData.user.profile?.[0]);
+      setProfile(loaderData.user.profile[0]);
     }
   }, [loaderData]);
 
   React.useEffect(() => {
-    if (actionData?.message && actionData?.method === 'update profile') {
+    if (actionData?.message && actionData?.operation === 'update profile') {
       alert(actionData.message);
     }
   }, [actionData]);
@@ -154,6 +161,7 @@ const EditProfile = () => {
           View Profile
         </Link>
         <Form method="post">
+          <input type="hidden" name="operation" value="logout" />
           <button>Logout</button>
         </Form>
       </div>
@@ -164,7 +172,7 @@ const EditProfile = () => {
             method="post"
             onChange={handleChangeImage}
           >
-            <input type="hidden" name="_method" value="upload image" />
+            <input type="hidden" name="operation" value="upload image" />
             <input type="hidden" name="profileid" value={profile?._id} />
             <label className="label-file" htmlFor="file">
               <img
@@ -179,7 +187,8 @@ const EditProfile = () => {
                 alt=""
               />
               <span>
-                {method === 'upload image' && transition.state === 'submitting'
+                {operation === 'upload image' &&
+                transition.state === 'submitting'
                   ? 'Uploading...'
                   : 'Change Image'}
               </span>
@@ -190,7 +199,7 @@ const EditProfile = () => {
         <div className="card">
           <Form method="post">
             <input type="hidden" name="profileid" value={profile?._id} />
-            <input type="hidden" name="_method" value="update profile" />
+            <input type="hidden" name="operation" value="update profile" />
             <div className="card-field">
               <label>First Name</label>
               <input
@@ -201,7 +210,6 @@ const EditProfile = () => {
             </div>
             <div className="card-field">
               <label>Last Name</label>
-
               <input
                 type="text"
                 name="lastname"
