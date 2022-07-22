@@ -10,8 +10,8 @@ export const kontenbaseToken = createCookie('token', {
   ...cookieOptions,
 });
 
-export const getToken = async (request: any) : Promise<string> => {
-    const cookieHeader = request.headers.get('Cookie');
-    const token =  await kontenbaseToken.parse(cookieHeader);
-    return token;
-}
+export const getToken = async (request) => {
+  const cookieHeader = request.headers.get('Cookie');
+  const token = await kontenbaseToken.parse(cookieHeader);
+  return token;
+};

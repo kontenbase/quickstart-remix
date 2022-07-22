@@ -3,12 +3,11 @@ import { json, redirect } from '@remix-run/node';
 import { kontenbase } from '~/lib/kontenbase.server';
 import { kontenbaseToken } from '~/utils/cookie';
 
-export const processLogin = async (formData: any ) => {
-  const username = formData.get('username')
+export const processLogin = async (formData) => {
+  const username = formData.get('username');
   const password = formData.get('password');
   const { token, error } = await kontenbase.auth.login({
-    // @ts-ignore
-    username, 
+    username,
     password,
   });
 
@@ -33,17 +32,17 @@ const Login = () => {
       <input type="hidden" name="_method" value="login" />
       <div className="form-group">
         <label>Username</label>
-        <input name="username" required/>
+        <input name="username" required />
       </div>
       <div className="form-group">
         <label>Password</label>
-        <input type='password' name="password" required />
+        <input type="password" name="password" required />
       </div>
       <div className="form-button">
         <button className="button button-primary">Submit</button>
       </div>
     </Form>
   );
-}
+};
 
 export default Login;
