@@ -1,11 +1,9 @@
 import { Form, Link, useLoaderData } from '@remix-run/react';
 import { json, redirect } from '@remix-run/node';
-import { kontenbase } from '~/lib/kontenbase.server';
 import { kontenbaseApiUrl } from '~/lib/kontenbase.server';
 import { getToken, kontenbaseToken } from '~/utils/cookie';
 
 export const action = async () => {
-  await kontenbase.auth.logout();
   return redirect('/', {
     headers: {
       'Set-Cookie': await kontenbaseToken.serialize('', {
@@ -31,7 +29,7 @@ export const loader = async ({ params, request }) => {
 
   const authUser = await authUserResponse.json();
 
-  let isOwnProfile = false;
+  let isOwnProfile;
 
   if (authUser) {
     isOwnProfile = authUser.username === username;
