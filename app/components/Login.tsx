@@ -33,11 +33,11 @@ const Login = () => {
       <input type="hidden" name="_method" value="login" />
       <div className="form-group">
         <label>Username</label>
-        <input name="username" />
+        <input name="username" required/>
       </div>
       <div className="form-group">
         <label>Password</label>
-        <input name="password" />
+        <input type='password' name="password" required />
       </div>
       <div className="form-button">
         <button className="button button-primary">Submit</button>

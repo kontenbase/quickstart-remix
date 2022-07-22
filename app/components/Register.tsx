@@ -42,7 +42,7 @@ const Register = () =>  {
       <div className="form-group">
         <input type="hidden" name="_method" value="register" />
         <label>First Name</label>
-        <input name="firstname" />
+        <input name="firstname" required />
       </div>
       <div className="form-group">
         <label>Last Name</label>
@@ -50,15 +50,15 @@ const Register = () =>  {
       </div>
       <div className="form-group">
         <label>Username</label>
-        <input name="username" />
+        <input  name="username" required />
       </div>
       <div className="form-group">
         <label>Email</label>
-        <input name="email" />
+        <input  name="email" required />
       </div>
       <div className="form-group">
         <label>Password</label>
-        <input name="password" />
+        <input type='password' name="password"  required/>
       </div>
       <div className="form-button">
         <button className="button button-primary">Submit</button>
