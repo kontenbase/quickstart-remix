@@ -42,8 +42,8 @@ export const processRegister = async (formData) => {
 const Register = () => {
   return (
     <Form method="post">
+      <input type="hidden" name="operation" value="register" />
       <div className="form-group">
-        <input type="hidden" name="operation" value="register" />
         <label>First Name</label>
         <input name="firstname" required />
       </div>
