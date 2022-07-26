@@ -138,7 +138,6 @@ const EditProfile = () => {
   const [profile, setProfile] = React.useState('');
 
   React.useEffect(() => {
-    console.log(loaderData);
     if (loaderData?.user) {
       setUser(loaderData.user);
       setProfile(loaderData.user?.profile?.[0]);
